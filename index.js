@@ -25,18 +25,21 @@ async function run() {
     const productCollection = client.db("productDB").collection("product");
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    // get category
+    // app.get(`/products/:id`, async(req, res)=>{
+    //     const id = req.body.id;
+    // })
+    // get brand 
+    app.get(`/products`, async(req, res)=>{
+        const cursor = productCollection.find()
+        const result = await cursor.toArray()
+        res.send(result)
 
+    })
+
+    // product added
     app.post('/products', async(req, res)=>{
-        const productReq = req.body;
-        const product ={
-            name:productReq.name, 
-            brand:productReq.brand, 
-            price:productReq.price, 
-            category:productReq.category, 
-            rating:productReq.rating, 
-            description:productReq.description, 
-            photo:productReq.photo
-        }
+        const product = req.body;
         console.log(product)
         const result = await productCollection.insertOne(product)
         res.send(result)
