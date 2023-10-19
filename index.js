@@ -25,16 +25,10 @@ async function run() {
     const productCollection = client.db("productDB").collection("product");
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    // get category
-    // app.get(`/products/:id`, async(req, res)=>{
-    //     const id = req.body.id;
-    // })
-    // get all product 
     app.get(`/products`, async(req, res)=>{
         const cursor = productCollection.find()
         const result = await cursor.toArray()
         res.send(result)
-
     })
 
     // get single brand product
@@ -52,6 +46,28 @@ async function run() {
         const query = {_id: new ObjectId(id)};
         const result = await productCollection.findOne(query)
         res.send(result)
+    })
+
+    // product update
+    app.put('/products/:id', async(req, res)=>{
+      const id = req.params.id;
+      const product = req.body;
+      const filter = {_id: new ObjectId(id)};
+      const options = { upsert: true };
+      const updateDoc ={
+        $set:{
+          name:product.name,
+           brand:product.brand,
+          price:product.price, 
+          category:product.category, 
+          rating:product.rating, 
+          description:product.description, 
+          photo:product.photo
+        }
+      }
+      const result = await productCollection.updateOne(filter, updateDoc, options);
+      res.send(result)
+      console.log(updateDoc)
     })
     // product added
     app.post('/products', async(req, res)=>{
