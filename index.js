@@ -29,13 +29,23 @@ async function run() {
     // app.get(`/products/:id`, async(req, res)=>{
     //     const id = req.body.id;
     // })
-    // get brand 
+    // get all product 
     app.get(`/products`, async(req, res)=>{
         const cursor = productCollection.find()
         const result = await cursor.toArray()
         res.send(result)
 
     })
+
+    // get single brand product
+    app.get('/products/:id', async(req, res)=>{
+        const brand = req.params.id;
+        const query = {brand:brand}
+        const cursor = productCollection.find(query)
+        const result = await cursor.toArray()
+        res.send(result)
+    })
+    
 
     // product added
     app.post('/products', async(req, res)=>{
