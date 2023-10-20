@@ -23,6 +23,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const productCollection = client.db("productDB").collection("product");
+    const usersCollection = client.db("productDB").collection("users");
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     app.get(`/products`, async(req, res)=>{
@@ -67,15 +68,34 @@ async function run() {
       }
       const result = await productCollection.updateOne(filter, updateDoc, options);
       res.send(result)
-      console.log(updateDoc)
+      // console.log(updateDoc)
     })
     // product added
     app.post('/products', async(req, res)=>{
         const product = req.body;
-        console.log(product)
+        // console.log(product)
         const result = await productCollection.insertOne(product)
         res.send(result)
     })
+
+
+    // users data 
+    // get single product 
+  //   app.get('/users/:id', async(req, res)=>{
+  //     const id = req.params.id;
+  //     const query = {_id: new ObjectId(id)};
+  //     const result = await usersCollection.findOne(query)
+  //     res.send(result)
+  // })
+    // post users
+    app.post('/users', async(req, res)=>{
+      const user = req.body;
+        // console.log(user)
+        const result = await usersCollection.insertOne(user)
+        res.send(result)
+    })
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
