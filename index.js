@@ -24,7 +24,7 @@ async function run() {
     const productCollection = client.db("productDB").collection("product");
     const usersCollection = client.db("productDB").collection("users");
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     app.get(`/products`, async (req, res) => {
       const cursor = productCollection.find();
       const result = await cursor.toArray();
@@ -115,27 +115,12 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
-    // delate cart item
-    // app.patch('/users/:id', async(req, res)=>{
-    //   const id = req.params.id;
-    //   const filter = {email: id}
-    //   const query = req.body._id;
-    //   const doc ={
-    //     $pull:{
-    //       'myCart':{'myCart.name':'food'}
-    //     }
-    //   }
-    //   const options = { upsert: true };
-    //   console.log(filter, query, doc)
-    //   const result = await usersCollection.updateOne(filter,doc, options )
-    //   res.send(result)
-    // })
-
+    
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
