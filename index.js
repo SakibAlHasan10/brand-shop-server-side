@@ -80,13 +80,27 @@ async function run() {
 
 
     // users data 
-    // get single product 
-  //   app.get('/users/:id', async(req, res)=>{
-  //     const id = req.params.id;
-  //     const query = {_id: new ObjectId(id)};
-  //     const result = await usersCollection.findOne(query)
-  //     res.send(result)
-  // })
+    // get single user 
+    app.get('/users/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await usersCollection.findOne(query)
+      res.send(result)
+  })
+    // add user cart
+    app.patch('/users', async(req, res)=>{
+      const reqEmail = req.body.email;
+      const myCart= (req.body.myCart)
+      const filter = {email: reqEmail};
+      const options = { upsert: true };
+      const updateDoc ={
+        $set:{
+          myCart
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateDoc, options)
+      res.send(result)
+  })
     // post users
     app.post('/users', async(req, res)=>{
       const user = req.body;
