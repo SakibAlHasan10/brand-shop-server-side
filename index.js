@@ -2,6 +2,7 @@ const express = require("express");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
 const jwt = require("jsonwebtoken")
+const cookieParser = require('cookie-parser')
 const app = express();
 const port = process.env.PORT || 5000;
 require("dotenv").config();
@@ -12,6 +13,7 @@ app.use(cors({
   credentials:true
 }));
 app.use(express.json());
+app.use(cookieParser())
 
 const uri = `mongodb+srv://${process.env.TW_U3}:${process.env.TW_S3}@cluster0.nwipcoy.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -22,7 +24,22 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
-
+const verifyToken = async(req, res, next)=>{
+  console.log("nnnnnnnn",req?.cookies)
+  const token = req.cookies?.token;
+  if(!token){ 
+    return res.status(401).send({msg:"not authorized"})
+  }
+  jwt.verify(token,process.env.SECRET_TK,(err, decoded)=>{
+    if(err){
+      return res.status(401).send({message:"unauthorized"})
+    }
+    console.log(decoded)
+    req.user=decoded
+    next()
+  })
+  next()
+} 
 async function run() {
   try {
     const productCollection = client.db("productDB").collection("product");
@@ -34,8 +51,13 @@ async function run() {
     app.post('/jwt', async(req, res)=>{
       const user = req.body;
       const token = jwt.sign(user, process.env.SECRET_TK, {expiresIn:"1h"})
-      console.log("ttttt",token)
-      res.send({success:"Success"})
+      // console.log("ttttt",req)
+      res
+      .cookie("token",token,{
+        httpOnly:true,
+        secure:false
+      })
+      .send({success:true})
     })
 
 
@@ -45,19 +67,19 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
-
     // get single brand product
     app.get("/products/:id", async (req, res) => {
       const brand = req.params.id;
       const query = { brand: brand };
       const cursor = productCollection.find(query);
       const result = await cursor.toArray();
-      res.send(result);
+      res.send(result); 
     });
 
     // get single product
-    app.get("/details/:id", async (req, res) => {
+    app.get("/details/:id",verifyToken, async (req, res) => {
       const id = req.params.id;
+      
       const query = { _id: new ObjectId(id) };
       const result = await productCollection.findOne(query);
       res.send(result);
