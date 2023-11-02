@@ -25,20 +25,20 @@ const client = new MongoClient(uri, {
   },
 });
 const verifyToken = async(req, res, next)=>{
-  console.log("nnnnnnnn",req?.cookies)
   const token = req.cookies?.token;
   if(!token){ 
+    // console.log("nnnnnllllll",token)
     return res.status(401).send({msg:"not authorized"})
   }
   jwt.verify(token,process.env.SECRET_TK,(err, decoded)=>{
     if(err){
       return res.status(401).send({message:"unauthorized"})
     }
-    console.log(decoded)
+    // console.log(decoded)
     req.user=decoded
     next()
   })
-  next()
+  // next()
 } 
 async function run() {
   try {
@@ -51,7 +51,7 @@ async function run() {
     app.post('/jwt', async(req, res)=>{
       const user = req.body;
       const token = jwt.sign(user, process.env.SECRET_TK, {expiresIn:"1h"})
-      // console.log("ttttt",req)
+      // console.log("ttttt",req.body)
       res
       .cookie("token",token,{
         httpOnly:true,
@@ -70,6 +70,7 @@ async function run() {
     // get single brand product
     app.get("/products/:id", async (req, res) => {
       const brand = req.params.id;
+      console.log(brand)
       const query = { brand: brand };
       const cursor = productCollection.find(query);
       const result = await cursor.toArray();
@@ -77,9 +78,12 @@ async function run() {
     });
 
     // get single product
-    app.get("/details/:id",verifyToken, async (req, res) => {
+    app.get("/details/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
-      
+      // console.log(id)
+      // if(req.user.email!== req.params.id){
+      //   return res.status(403).send({message:"forbidden access"})
+      // }
       const query = { _id: new ObjectId(id) };
       const result = await productCollection.findOne(query);
       res.send(result);
