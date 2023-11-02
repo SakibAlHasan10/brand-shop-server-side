@@ -59,7 +59,11 @@ async function run() {
       })
       .send({success:true})
     })
-
+    // remove token
+    app.post("/logout", async(req, res)=>{
+      const user = req.body;
+      res.clearCookie("token", {maxAge:0}).send({success:true})
+    })
 
 
     app.get(`/products`, async (req, res) => {
@@ -70,7 +74,7 @@ async function run() {
     // get single brand product
     app.get("/products/:id", async (req, res) => {
       const brand = req.params.id;
-      console.log(brand)
+      // console.log(brand)
       const query = { brand: brand };
       const cursor = productCollection.find(query);
       const result = await cursor.toArray();
@@ -127,6 +131,7 @@ async function run() {
     // get single user
     app.get("/users/:id", async (req, res) => {
       const id = req.params.id;
+      // console.log(id)
       const query = { email: id };
       const result = await usersCollection.findOne(query);
       res.send(result);
@@ -135,11 +140,12 @@ async function run() {
     app.put("/users", async (req, res) => {
       const reqEmail = req.body.email;
       const request = req.body;
+      // console.log(request)
       const filter = { email: reqEmail };
       const options = { upsert: true };
       const updateDoc = {
         $set: {
-          myCart: req.body.allCart,
+          myCart: req.body.allCart, 
         },
       };
       const result = await usersCollection.updateOne(
